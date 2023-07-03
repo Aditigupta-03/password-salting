@@ -1,0 +1,82 @@
+import os
+import hashlib
+import time
+
+def generate_salt():
+    return os.urandom(32)
+
+def sha1_hash(plaintext, salt, iterations):
+    return hashlib.pbkdf2_hmac('sha1', plaintext, salt, iterations)
+
+def sha256_hash(plaintext, salt, iterations):
+    return hashlib.pbkdf2_hmac('sha256', plaintext, salt, iterations)
+
+def sha512_hash(plaintext, salt, iterations):
+    return hashlib.pbkdf2_hmac('sha512', plaintext, salt, iterations)
+
+def simple_password_encrypt(password, key):
+    encrypted = ''
+    for i in range(len(password)):
+        char = password[i]
+        encrypted += chr(ord(char) ^ key)
+    return encrypted
+
+def brute_force_attack(encrypted_password, key):
+    decrypted = ''
+    for i in range(len(encrypted_password)):
+        char = encrypted_password[i]
+        decrypted += chr(ord(char) ^ key)
+    return decrypted
+
+# User input
+username = input("Enter name: ")
+password = input("Enter password: ")
+plaintext = password.encode("utf-8")
+
+# Generate salt
+salt = generate_salt()
+
+# Perform SHA-256 hash
+start_time_sha256 = time.time()
+iterations_sha256 = 10000
+hex_hash_sha256 = sha256_hash(plaintext, salt, iterations_sha256).hex()
+end_time_sha256 = time.time()
+
+# Perform SHA-512 hash
+start_time_sha512 = time.time()
+iterations_sha512 = 10000
+hex_hash_sha512 = sha512_hash(plaintext, salt, iterations_sha512).hex()
+end_time_sha512 = time.time()
+
+# Perform SHA-1 hash
+start_time_sha1 = time.time()
+iterations_sha1 = 10000
+hex_hash_sha1 = sha1_hash(plaintext, salt, iterations_sha1).hex()
+end_time_sha1 = time.time()
+
+# Perform simple password encryption using XOR
+key = 10
+encrypted_password = simple_password_encrypt(password, key)
+
+# Perform brute force attack on simple password encryption
+start_time_brute_force = time.time()
+decrypted_password = brute_force_attack(encrypted_password, key)
+end_time_brute_force = time.time()
+
+# Print results
+print("\nAlgorithm Used is SHA256\n")
+print("Hex Value is:\n", hex_hash_sha256)
+print("Time taken  (in seconds):", end_time_sha256 - start_time_sha256)
+
+print("\nAlgorithm Used is SHA512\n")
+print("Hex Value is:\n", hex_hash_sha512)
+print("Time taken  (in seconds):", end_time_sha512 - start_time_sha512)
+
+print("\nAlgorithm Used is SHA1\n")
+print("Hex Value is:\n", hex_hash_sha1)
+print("Time taken  (in seconds):", end_time_sha1 - start_time_sha1)
+
+print("\nSimple Password Encryption using XOR:\n")
+print("Encrypted Password:", encrypted_password)
+print("Decrypted Password:", decrypted_password)
+print("Time taken to break password (in seconds):", end_time_brute_force - start_time_brute_force)
